@@ -33,5 +33,35 @@ namespace Timbal.Tests
             Assert.IsTrue(actual.ContainsKey(322));
             Assert.AreEqual<decimal>(3.3333m, actual[322]);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void should_throw_arg_null()
+        {
+            // arrange
+            int[] src = null;
+            const decimal amountToAllocate = 10m;
+            const int allocationPrecision = 4;
+
+            // act
+            var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision);
+
+            // assert
+        }
+
+        [TestMethod]
+        public void should_return_empty_dictionary()
+        {
+            // arrange
+            var src = new int[0];
+            const decimal amountToAllocate = 10m;
+            const int allocationPrecision = 4;
+
+            // act
+            var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision);
+
+            // assert
+            Assert.AreEqual<int>(0, actual.Count);
+        }
     }
 }
