@@ -24,14 +24,14 @@ namespace Timbal.Tests
             Assert.AreEqual<int>(3, actual.Count);
             Assert.AreEqual<decimal>(amountToAllocate, actual.Values.Sum());
 
-            Assert.IsTrue(actual.ContainsKey(1));
-            Assert.AreEqual<decimal>(3.3334m, actual[1]);
+            Assert.IsTrue(actual.ContainsKey(111));
+            Assert.AreEqual<decimal>(3.3334m, actual[111]);
 
-            Assert.IsTrue(actual.ContainsKey(2));
-            Assert.AreEqual<decimal>(3.3333m, actual[2]);
+            Assert.IsTrue(actual.ContainsKey(211));
+            Assert.AreEqual<decimal>(3.3333m, actual[211]);
 
-            Assert.IsTrue(actual.ContainsKey(3));
-            Assert.AreEqual<decimal>(3.3333m, actual[3]);
+            Assert.IsTrue(actual.ContainsKey(322));
+            Assert.AreEqual<decimal>(3.3333m, actual[322]);
         }
     }
 }

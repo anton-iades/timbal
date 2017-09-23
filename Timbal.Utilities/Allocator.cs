@@ -10,7 +10,19 @@ namespace Timbal.Utilities
     {
         public static IDictionary<int, decimal> AllocateAmountEvenly(this int[] recipients, decimal amount, int precision)
         {
-            throw new NotImplementedException();
+            var rv = new Dictionary<int, decimal>();
+
+            var allocation = decimal.Round(amount / recipients.Length, precision);
+            var remainder = amount - (allocation * recipients.Length);
+
+            for (int i = 0; i < recipients.Length; i++)
+            {
+                rv[recipients[i]] = allocation;
+            }
+
+            rv[recipients[0]] += remainder;
+
+            return rv;
         }
     }
 }
