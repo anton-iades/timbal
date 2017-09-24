@@ -3,10 +3,10 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Timbal.Utilities;
 
-namespace Timbal.Tests
+namespace Timbal.Tests.AllocatorTests
 {
     [TestClass]
-    public class AllocatorTests
+    public class AllocateAmountEvenlyTests
     {
         [TestMethod]
         public void should_allocate_evenly()
