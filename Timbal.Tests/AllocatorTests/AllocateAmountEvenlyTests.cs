@@ -44,7 +44,8 @@ namespace Timbal.Tests.AllocatorTests
         }
 
         [TestMethod]
-        public void should_return_empty_collection()
+        [ExpectedException(typeof(ArgumentException))]
+        public void should_throw_if_no_recipients()
         {
             // arrange
             var src = new int[0];
@@ -55,7 +56,6 @@ namespace Timbal.Tests.AllocatorTests
             var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
 
             // assert
-            Assert.AreEqual<int>(0, actual.Count());
         }
 
         [TestMethod]

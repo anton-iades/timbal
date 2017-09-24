@@ -35,6 +35,72 @@ namespace Timbal.Tests.AllocatorTests
         }
 
         [TestMethod]
+        public void should_allow_mixed_sign_allocation_basis_netting_positive()
+        {
+            // arrange
+            const int precision = 5;
+            const decimal amountToAllocate = 250m;
+            var allocationBasis = new Dictionary<int, decimal>
+            {
+                [101] = 4,// 1000
+                [202] = -3// -750
+            };
+
+            // act
+            var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+
+            // assert
+            Assert.AreEqual<int>(2, actual.Count());
+            Assert.AreEqual<decimal>(amountToAllocate, actual.Sum(k => k.Value));
+
+            Assert.IsTrue(actual.Any(k => k.Key == 101 && k.Value == 1000m));
+            Assert.IsTrue(actual.Any(k => k.Key == 202 && k.Value == -750m));
+        }
+
+        [TestMethod]
+        public void should_allow_mixed_sign_allocation_basis_netting_negative()
+        {
+            // arrange
+            const int precision = 5;
+            const decimal amountToAllocate = 250m;
+            var allocationBasis = new Dictionary<int, decimal>
+            {
+                [101] = 4,// -1000
+                [202] = -5// 1250
+            };
+
+            // act
+            var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+
+            // assert
+            Assert.AreEqual<int>(2, actual.Count());
+            Assert.AreEqual<decimal>(amountToAllocate, actual.Sum(k => k.Value));
+
+            Assert.IsTrue(actual.Any(k => k.Key == 101 && k.Value == -1000m));
+            Assert.IsTrue(actual.Any(k => k.Key == 202 && k.Value == 1250m));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void should_throw_if_allocation_basis_nets_to_zero()
+        {
+            // arrange
+            const int precision = 5;
+            const decimal amountToAllocate = 250m;
+            var allocationBasis = new Dictionary<int, decimal>
+            {
+                [101] = 5,
+                [202] = -5,
+                [303] = 0
+            };
+
+            // act
+            var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+
+            // assert
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void should_throw_arg_null()
         {
@@ -50,7 +116,8 @@ namespace Timbal.Tests.AllocatorTests
         }
 
         [TestMethod]
-        public void should_return_empty_collection()
+        [ExpectedException(typeof(ArgumentException))]
+        public void should_throw_if_no_recipients()
         {
             // arrange
             var src = Enumerable.Empty<KeyValuePair<int, decimal>>();
@@ -61,7 +128,6 @@ namespace Timbal.Tests.AllocatorTests
             var actual = src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
 
             // assert
-            Assert.AreEqual<int>(0, actual.Count());
         }
     }
 }
