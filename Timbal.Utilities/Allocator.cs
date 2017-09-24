@@ -8,19 +8,30 @@ namespace Timbal.Utilities
     {
         public static IEnumerable<KeyValuePair<int, decimal>> AllocateAmountEvenly(this IEnumerable<int> recipients, decimal amount, int precision)
         {
-            if (recipients == null) throw new ArgumentNullException(nameof(recipients));
-            var recipientsArray = recipients.ToArray();
+            return recipients
+                .Select(r => new KeyValuePair<int, decimal>(r, 1m))
+                .AllocateProportionally(amount, precision);
+        }
 
-            if (recipientsArray.Length == 0) yield break;
+        public static IEnumerable<KeyValuePair<int, decimal>> AllocateProportionally(this IEnumerable<KeyValuePair<int, decimal>> recipientAllocationBasis, decimal amount, int precision)
+        {
+            if (recipientAllocationBasis == null) throw new ArgumentNullException(nameof(recipientAllocationBasis));
+            var allocationBasisArray = recipientAllocationBasis.ToArray();
 
-            var generalAllocation = decimal.Round(amount / recipientsArray.Length, precision);
-            var remainder = amount % generalAllocation;
+            if (allocationBasisArray.Length == 0) throw new ArgumentException(Errors.NO_RECIPIENTS);
 
-            for (int i = 0; i < recipientsArray.Length; i++)
+            var total = allocationBasisArray.Sum(k => k.Value);
+
+            if (total == 0m) throw new ArgumentException(Errors.ALLOCATION_BASIS_ZERO);
+
+            var rv = allocationBasisArray.Select(k => new KeyValuePair<int, decimal>(k.Key, decimal.Round(k.Value / total * amount, precision))).ToArray();
+            var remainder = amount - rv.Sum(k => k.Value);
+
+            for (int i = 0; i < rv.Length; i++)
             {
-                var allocation = i == 0 ? generalAllocation + remainder : generalAllocation;
-
-                yield return new KeyValuePair<int, decimal>(recipientsArray[i], allocation);
+                var key = rv[i].Key;
+                var val = i == 0 ? rv[i].Value + remainder : rv[i].Value;
+                yield return new KeyValuePair<int, decimal>(key, val);
             }
         }
     }

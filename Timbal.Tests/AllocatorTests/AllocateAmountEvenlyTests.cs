@@ -3,10 +3,10 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Timbal.Utilities;
 
-namespace Timbal.Tests
+namespace Timbal.Tests.AllocatorTests
 {
     [TestClass]
-    public class AllocatorTests
+    public class AllocateAmountEvenlyTests
     {
         [TestMethod]
         public void should_allocate_evenly()
@@ -44,7 +44,8 @@ namespace Timbal.Tests
         }
 
         [TestMethod]
-        public void should_return_empty_collection()
+        [ExpectedException(typeof(ArgumentException))]
+        public void should_throw_if_no_recipients()
         {
             // arrange
             var src = new int[0];
@@ -55,7 +56,6 @@ namespace Timbal.Tests
             var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
 
             // assert
-            Assert.AreEqual<int>(0, actual.Count());
         }
 
         [TestMethod]
