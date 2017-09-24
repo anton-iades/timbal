@@ -51,6 +51,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AllocatorTests\AllocateAmountEvenlyTests.cs" />
+    <Compile Include="AllocatorTests\AllocateProportionallyTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
