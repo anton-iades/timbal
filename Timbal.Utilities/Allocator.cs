@@ -1,32 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Timbal.Utilities
 {
     public static class Allocator
     {
-        public static IDictionary<int, decimal> AllocateAmountEvenly(this int[] recipients, decimal amount, int precision)
+        public static IEnumerable<KeyValuePair<int, decimal>> AllocateAmountEvenly(this IEnumerable<int> recipients, decimal amount, int precision)
         {
             if (recipients == null) throw new ArgumentNullException(nameof(recipients));
+            var recipientsArray = recipients.ToArray();
 
-            var rv = new Dictionary<int, decimal>();
+            if (recipientsArray.Length == 0) yield break;
 
-            if (!recipients.Any()) return rv;
+            var generalAllocation = decimal.Round(amount / recipientsArray.Length, precision);
+            var remainder = amount % generalAllocation;
 
-            var allocation = decimal.Round(amount / recipients.Length, precision);
-            var remainder = amount - (allocation * recipients.Length);
-
-            for (int i = 0; i < recipients.Length; i++)
+            for (int i = 0; i < recipientsArray.Length; i++)
             {
-                rv[recipients[i]] = allocation;
+                var allocation = i == 0 ? generalAllocation + remainder : generalAllocation;
+
+                yield return new KeyValuePair<int, decimal>(recipientsArray[i], allocation);
             }
-
-            rv[recipients[0]] += remainder;
-
-            return rv;
         }
     }
 }
