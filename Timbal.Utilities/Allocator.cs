@@ -18,13 +18,11 @@ namespace Timbal.Utilities
             if (recipientAllocationBasis == null) throw new ArgumentNullException(nameof(recipientAllocationBasis));
             var allocationBasisArray = recipientAllocationBasis.ToArray();
 
-            // TODO: error message
-            if (allocationBasisArray.Length == 0) throw new ArgumentException();
+            if (allocationBasisArray.Length == 0) throw new ArgumentException(Errors.NO_RECIPIENTS);
 
             var total = allocationBasisArray.Sum(k => k.Value);
 
-            // TODO: error message
-            if (total == 0m) throw new ArgumentException();
+            if (total == 0m) throw new ArgumentException(Errors.ALLOCATION_BASIS_ZERO);
 
             var rv = allocationBasisArray.Select(k => new KeyValuePair<int, decimal>(k.Key, decimal.Round(k.Value / total * amount, precision))).ToArray();
             var remainder = amount - rv.Sum(k => k.Value);
