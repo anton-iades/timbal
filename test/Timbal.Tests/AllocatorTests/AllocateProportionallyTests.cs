@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using Timbal.Utilities;
 using Xunit;
 
@@ -11,7 +12,7 @@ namespace Timbal.Tests.AllocatorTests
         [Fact]
         public void should_allocate_propotionally()
         {
-            // arrange
+            // given
             const int precision = 5;
             const decimal amountToAllocate = 250m;
             var allocationBasis = new Dictionary<int, decimal>
@@ -20,21 +21,21 @@ namespace Timbal.Tests.AllocatorTests
                 [202] = 5
             };
 
-            // act
+            // when
             var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
-            // assert
-            Assert.Equal(2, actual.Count());
-            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
+            // then
+            actual.Should().HaveCount(2);
+            actual.Sum(k => k.Value).Should().Be(amountToAllocate);
 
-            Assert.Contains(actual, k => k.Key == 101 && k.Value == 71.42857m);
-            Assert.Contains(actual, k => k.Key == 202 && k.Value == 178.57143m);
+            actual.Should().Contain(k => k.Key == 101 && k.Value == 71.42857m);
+            actual.Should().Contain(k => k.Key == 202 && k.Value == 178.57143m);
         }
 
         [Fact]
         public void should_allow_mixed_sign_allocation_basis_netting_positive()
         {
-            // arrange
+            // given
             const int precision = 5;
             const decimal amountToAllocate = 250m;
             var allocationBasis = new Dictionary<int, decimal>
@@ -43,21 +44,21 @@ namespace Timbal.Tests.AllocatorTests
                 [202] = -3// -750
             };
 
-            // act
+            // when
             var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
-            // assert
-            Assert.Equal(2, actual.Count());
-            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
+            // then
+            actual.Should().HaveCount(2);
+            actual.Sum(k => k.Value).Should().Be(amountToAllocate);
 
-            Assert.Contains(actual, k => k.Key == 101 && k.Value == 1000m);
-            Assert.Contains(actual, k => k.Key == 202 && k.Value == -750m);
+            actual.Should().Contain(k => k.Key == 101 && k.Value == 1000);
+            actual.Should().Contain(k => k.Key == 202 && k.Value == -750);
         }
 
         [Fact]
         public void should_allow_mixed_sign_allocation_basis_netting_negative()
         {
-            // arrange
+            // given
             const int precision = 5;
             const decimal amountToAllocate = 250m;
             var allocationBasis = new Dictionary<int, decimal>
@@ -66,21 +67,21 @@ namespace Timbal.Tests.AllocatorTests
                 [202] = -5// 1250
             };
 
-            // act
+            // when
             var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
-            // assert
-            Assert.Equal(2, actual.Count());
-            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
+            // then
+            actual.Should().HaveCount(2);
+            actual.Sum(k => k.Value).Should().Be(amountToAllocate);
 
-            Assert.Contains(actual, k => k.Key == 101 && k.Value == -1000m);
-            Assert.Contains(actual, k => k.Key == 202 && k.Value == 1250m);
+            actual.Should().Contain(k => k.Key == 101 && k.Value == -1000);
+            actual.Should().Contain(k => k.Key == 202 && k.Value == 1250);
         }
 
         [Fact]
         public void should_throw_if_allocation_basis_nets_to_zero()
         {
-            // arrange
+            // given
             const int precision = 5;
             const decimal amountToAllocate = 250m;
             var allocationBasis = new Dictionary<int, decimal>
@@ -90,41 +91,41 @@ namespace Timbal.Tests.AllocatorTests
                 [303] = 0
             };
 
-            // act
+            // when
             Action actual = () => allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
-            // assert
-            Assert.Throws<ArgumentException>(actual);
+            // then
+            actual.Should().Throw<ArgumentException>();
         }
 
         [Fact]
         public void should_throw_arg_null()
         {
-            // arrange
+            // given
             IEnumerable<KeyValuePair<int, decimal>> src = null;
             const decimal amountToAllocate = 10m;
             const int allocationPrecision = 4;
 
-            // act
+            // when
             Action actual = () => src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
 
-            // assert
-            Assert.Throws<ArgumentNullException>(actual);
+            // then
+            actual.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
         public void should_throw_if_no_recipients()
         {
-            // arrange
+            // given
             var src = Enumerable.Empty<KeyValuePair<int, decimal>>();
             const decimal amountToAllocate = 10m;
             const int allocationPrecision = 4;
 
-            // act
+            // when
             Action actual = () => src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
 
-            // assert
-            Assert.Throws<ArgumentException>(actual);
+            // then
+            actual.Should().Throw<ArgumentException>();
         }
     }
 }
