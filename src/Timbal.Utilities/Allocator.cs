@@ -6,14 +6,14 @@ namespace Timbal.Utilities
 {
     public static class Allocator
     {
-        public static IEnumerable<KeyValuePair<TKey, decimal>> AllocateAmountEvenly<TKey>(this IEnumerable<TKey> recipients, decimal amountToAllocate, int precision)
+        public static AllocationResult<TKey> AllocateAmountEvenly<TKey>(this IEnumerable<TKey> recipients, decimal amountToAllocate, AllocatorSettings settings = null)
         {
             return recipients
                 .Select(r => new KeyValuePair<TKey, decimal>(r, 1m))
-                .AllocateProportionally(amountToAllocate, precision);
+                .AllocateProportionally(amountToAllocate, settings);
         }
 
-        public static IEnumerable<KeyValuePair<TKey, decimal>> AllocateProportionally<TKey>(this IEnumerable<KeyValuePair<TKey, decimal>> recipientWeights, decimal amountToAllocate, int precision)
+        public static AllocationResult<TKey> AllocateProportionally<TKey>(this IEnumerable<KeyValuePair<TKey, decimal>> recipientWeights, decimal amountToAllocate, AllocatorSettings settings = null)
         {
             if (recipientWeights is null)
             {
@@ -34,19 +34,32 @@ namespace Timbal.Utilities
                 throw new ArgumentException(Errors.ALLOCATION_BASIS_ZERO);
             }
 
+            settings ??= new AllocatorSettings { };
             var weightMultiplier = amountToAllocate / totalWeight;
 
-            var rv = rw
-                .Select(weight => new KeyValuePair<TKey, decimal>(weight.Key, decimal.Round(weight.Value * weightMultiplier, precision)))
+            var allocations = rw
+                .Select(weight => new KeyValuePair<TKey, decimal>(weight.Key, decimal.Round(weight.Value * weightMultiplier, settings.Precision, settings.MidpointRounding)))
                 .ToList();
 
-            var remainder = amountToAllocate - rv.Sum(k => k.Value);
-            if (remainder != decimal.Zero)
-            {
-                rv[0] = new KeyValuePair<TKey, decimal>(rv[0].Key, rv[0].Value + remainder);
-            }
+            var remainder = amountToAllocate - allocations.Sum(k => k.Value);
 
-            return rv;
+            return new AllocationResult<TKey>
+            {
+                Allocations = allocations,
+                Remainder = remainder
+            };
         }
+    }
+
+    public class AllocatorSettings
+    {
+        public int Precision { get; set; }
+        public MidpointRounding MidpointRounding { get; set; }
+    }
+
+    public class AllocationResult<TKey>
+    {
+        public decimal Remainder { get; set; }
+        public IReadOnlyList<KeyValuePair<TKey, decimal>> Allocations { get; set; }
     }
 }
