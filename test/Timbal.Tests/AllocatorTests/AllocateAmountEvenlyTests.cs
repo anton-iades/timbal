@@ -23,13 +23,13 @@ namespace Timbal.Tests.AllocatorTests
             actual.Should().NotBeNull();
 
             actual.Allocations.Should().HaveCount(3)
-                .And.HaveElementAt(0, new KeyValuePair<int, decimal>(111, 7m))
-                .And.HaveElementAt(1, new KeyValuePair<int, decimal>(211, 7m))
-                .And.HaveElementAt(2, new KeyValuePair<int, decimal>(322, 7m));
+                .And.HaveElementAt(0, (111, 7m))
+                .And.HaveElementAt(1, (211, 7m))
+                .And.HaveElementAt(2, (322, 7m));
 
             actual.Remainder.Should().Be(-1m);
 
-            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
 
@@ -47,13 +47,13 @@ namespace Timbal.Tests.AllocatorTests
             actual.Should().NotBeNull();
 
             actual.Allocations.Should().HaveCount(3)
-                .And.HaveElementAt(0, new KeyValuePair<int, decimal>(111, -7m))
-                .And.HaveElementAt(1, new KeyValuePair<int, decimal>(211, -7m))
-                .And.HaveElementAt(2, new KeyValuePair<int, decimal>(322, -7m));
+                .And.HaveElementAt(0, (111, -7m))
+                .And.HaveElementAt(1, (211, -7m))
+                .And.HaveElementAt(2, (322, -7m));
 
             actual.Remainder.Should().Be(1m);
 
-            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
 
@@ -100,13 +100,13 @@ namespace Timbal.Tests.AllocatorTests
             actual.Should().NotBeNull();
 
             actual.Allocations.Should().HaveCount(3)
-                .And.HaveElementAt(0, new KeyValuePair<int, decimal>(111, 3.3333m))
-                .And.HaveElementAt(1, new KeyValuePair<int, decimal>(111, 3.3333m))
-                .And.HaveElementAt(2, new KeyValuePair<int, decimal>(111, 3.3333m));
+                .And.HaveElementAt(0, (111, 3.3333m))
+                .And.HaveElementAt(1, (111, 3.3333m))
+                .And.HaveElementAt(2, (111, 3.3333m));
 
             actual.Remainder.Should().Be(0.0001m);
 
-            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
     }

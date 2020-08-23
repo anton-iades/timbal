@@ -15,25 +15,25 @@ namespace Timbal.Tests.AllocatorTests
             // given
             var settings = new AllocatorSettings { Precision = 5 };
             const decimal amountToAllocate = 250m;
-            var allocationBasis = new Dictionary<string, decimal>
+            var elements = new[]
             {
-                ["Item 1"] = 2,
-                ["Item 2"] = 5
+                new {Key= "Item 1", Value = 2},
+                new {Key= "Item 2", Value = 5}
             };
 
             // when
-            var actual = allocationBasis.AllocateProportionally(amountToAllocate, settings);
+            var actual = elements.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
             actual.Should().NotBeNull();
 
             actual.Allocations.Should().HaveCount(2)
-                .And.HaveElementAt(0, new KeyValuePair<string, decimal>("Item 1", 71.42857m))
-                .And.HaveElementAt(1, new KeyValuePair<string, decimal>("Item 2", 178.57143m));
+                .And.HaveElementAt(0, (elements[0], 71.42857m))
+                .And.HaveElementAt(1, (elements[1], 178.57143m));
 
             actual.Remainder.Should().Be(0m);
 
-            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
 
@@ -43,25 +43,25 @@ namespace Timbal.Tests.AllocatorTests
             // given
             var settings = new AllocatorSettings { Precision = 5 };
             const decimal amountToAllocate = 250m;
-            var allocationBasis = new Dictionary<int, decimal>
+            var elements = new[]
             {
-                [101] = 4,// 1000
-                [202] = -3// -750
+                new {Id= 101, Weight = 4},
+                new {Id= 202, Weight = -3}
             };
 
             // when
-            var actual = allocationBasis.AllocateProportionally(amountToAllocate, settings);
+            var actual = elements.AllocateProportionally(amountToAllocate, i => i.Weight, settings);
 
             // then
             actual.Should().NotBeNull();
 
             actual.Allocations.Should().HaveCount(2)
-                .And.HaveElementAt(0, new KeyValuePair<int, decimal>(101, 1000m))
-                .And.HaveElementAt(1, new KeyValuePair<int, decimal>(202, -750m));
+                    .And.HaveElementAt(0, (elements[0], 1000m))
+                    .And.HaveElementAt(1, (elements[1], -750m));
 
             actual.Remainder.Should().Be(0m);
 
-            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
 
@@ -78,18 +78,18 @@ namespace Timbal.Tests.AllocatorTests
             };
 
             // when
-            var actual = allocationBasis.AllocateProportionally(amountToAllocate, settings);
+            var actual = allocationBasis.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
             actual.Should().NotBeNull();
 
             actual.Allocations.Should().HaveCount(2)
-                .And.HaveElementAt(0, new KeyValuePair<int, decimal>(101, -1000m))
-                .And.HaveElementAt(1, new KeyValuePair<int, decimal>(202, 1250m));
+                .And.HaveElementAt(0, (allocationBasis.ElementAt(0), -1000m))
+                .And.HaveElementAt(1, (allocationBasis.ElementAt(1), 1250m));
 
             actual.Remainder.Should().Be(0m);
 
-            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
 
@@ -106,7 +106,7 @@ namespace Timbal.Tests.AllocatorTests
             };
 
             // when
-            Action actual = () => allocationBasis.AllocateProportionally(amountToAllocate);
+            Action actual = () => allocationBasis.AllocateProportionally(amountToAllocate, i => i.Value);
 
             // then
             actual.Should().Throw<ArgumentException>();
@@ -121,7 +121,7 @@ namespace Timbal.Tests.AllocatorTests
             var settings = new AllocatorSettings { Precision = 4 };
 
             // when
-            Action actual = () => src.AllocateProportionally(amountToAllocate, settings);
+            Action actual = () => src.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
             actual.Should().Throw<ArgumentNullException>();
@@ -136,7 +136,7 @@ namespace Timbal.Tests.AllocatorTests
             var settings = new AllocatorSettings { Precision = 4 };
 
             // when
-            Action actual = () => src.AllocateProportionally(amountToAllocate, settings);
+            Action actual = () => src.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
             actual.Should().Throw<ArgumentException>();

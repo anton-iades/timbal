@@ -6,28 +6,27 @@ namespace Timbal.Utilities
 {
     public static class Allocator
     {
-        public static AllocationResult<TKey> AllocateAmountEvenly<TKey>(this IEnumerable<TKey> recipients, decimal amountToAllocate, AllocatorSettings settings = null)
+        public static AllocationResult<T> AllocateAmountEvenly<T>(this IEnumerable<T> recipients, decimal amountToAllocate, AllocatorSettings settings = null)
         {
             return recipients
-                .Select(r => new KeyValuePair<TKey, decimal>(r, 1m))
-                .AllocateProportionally(amountToAllocate, settings);
+                .AllocateProportionally(amountToAllocate, x => 1, settings);
         }
 
-        public static AllocationResult<TKey> AllocateProportionally<TKey>(this IEnumerable<KeyValuePair<TKey, decimal>> recipientWeights, decimal amountToAllocate, AllocatorSettings settings = null)
+        public static AllocationResult<T> AllocateProportionally<T>(this IEnumerable<T> recipients, decimal amountToAllocate, Func<T, decimal> weightSelector, AllocatorSettings settings = null)
         {
-            if (recipientWeights is null)
+            if (recipients is null)
             {
-                throw new ArgumentNullException(nameof(recipientWeights));
+                throw new ArgumentNullException(nameof(recipients));
             }
 
-            var rw = recipientWeights.ToList();
+            var recipientsList = recipients.ToList();
 
-            if (!rw.Any())
+            if (!recipientsList.Any())
             {
                 throw new ArgumentException(Errors.NO_RECIPIENTS);
             }
 
-            var totalWeight = rw.Sum(k => k.Value);
+            var totalWeight = recipientsList.Sum(weightSelector);
 
             if (totalWeight == decimal.Zero)
             {
@@ -37,13 +36,13 @@ namespace Timbal.Utilities
             settings ??= new AllocatorSettings { };
             var weightMultiplier = amountToAllocate / totalWeight;
 
-            var allocations = rw
-                .Select(weight => new KeyValuePair<TKey, decimal>(weight.Key, decimal.Round(weight.Value * weightMultiplier, settings.Precision, settings.MidpointRounding)))
+            var allocations = recipientsList
+                .Select(r => (Recipient: r, Allocation: decimal.Round(weightSelector(r) * weightMultiplier, settings.Precision, settings.MidpointRounding)))
                 .ToList();
 
-            var remainder = amountToAllocate - allocations.Sum(k => k.Value);
+            var remainder = amountToAllocate - allocations.Sum(k => k.Allocation);
 
-            return new AllocationResult<TKey>
+            return new AllocationResult<T>
             {
                 Allocations = allocations,
                 Remainder = remainder
@@ -60,6 +59,6 @@ namespace Timbal.Utilities
     public class AllocationResult<TKey>
     {
         public decimal Remainder { get; set; }
-        public IReadOnlyList<KeyValuePair<TKey, decimal>> Allocations { get; set; }
+        public IReadOnlyList<(TKey Recipient, decimal Allocation)> Allocations { get; set; }
     }
 }
