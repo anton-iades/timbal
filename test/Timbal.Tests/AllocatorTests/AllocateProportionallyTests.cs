@@ -13,53 +13,63 @@ namespace Timbal.Tests.AllocatorTests
         public void should_allocate_propotionally()
         {
             // given
-            const int precision = 5;
+            var settings = new AllocatorSettings { Precision = 5 };
             const decimal amountToAllocate = 250m;
-            var allocationBasis = new Dictionary<int, decimal>
+            var elements = new[]
             {
-                [101] = 2,
-                [202] = 5
+                new {Key= "Item 1", Value = 2},
+                new {Key= "Item 2", Value = 5}
             };
 
             // when
-            var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+            var actual = elements.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
-            actual.Should().HaveCount(2);
-            actual.Sum(k => k.Value).Should().Be(amountToAllocate);
+            actual.Should().NotBeNull();
 
-            actual.Should().Contain(k => k.Key == 101 && k.Value == 71.42857m);
-            actual.Should().Contain(k => k.Key == 202 && k.Value == 178.57143m);
+            actual.Allocations.Should().HaveCount(2)
+                .And.HaveElementAt(0, (elements[0], 71.42857m))
+                .And.HaveElementAt(1, (elements[1], 178.57143m));
+
+            actual.Remainder.Should().Be(0m);
+
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
+            total.Should().Be(amountToAllocate);
         }
 
         [Fact]
         public void should_allow_mixed_sign_allocation_basis_netting_positive()
         {
             // given
-            const int precision = 5;
+            var settings = new AllocatorSettings { Precision = 5 };
             const decimal amountToAllocate = 250m;
-            var allocationBasis = new Dictionary<int, decimal>
+            var elements = new[]
             {
-                [101] = 4,// 1000
-                [202] = -3// -750
+                new {Id= 101, Weight = 4},
+                new {Id= 202, Weight = -3}
             };
 
             // when
-            var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+            var actual = elements.AllocateProportionally(amountToAllocate, i => i.Weight, settings);
 
             // then
-            actual.Should().HaveCount(2);
-            actual.Sum(k => k.Value).Should().Be(amountToAllocate);
+            actual.Should().NotBeNull();
 
-            actual.Should().Contain(k => k.Key == 101 && k.Value == 1000);
-            actual.Should().Contain(k => k.Key == 202 && k.Value == -750);
+            actual.Allocations.Should().HaveCount(2)
+                    .And.HaveElementAt(0, (elements[0], 1000m))
+                    .And.HaveElementAt(1, (elements[1], -750m));
+
+            actual.Remainder.Should().Be(0m);
+
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
+            total.Should().Be(amountToAllocate);
         }
 
         [Fact]
         public void should_allow_mixed_sign_allocation_basis_netting_negative()
         {
             // given
-            const int precision = 5;
+            var settings = new AllocatorSettings { Precision = 5 };
             const decimal amountToAllocate = 250m;
             var allocationBasis = new Dictionary<int, decimal>
             {
@@ -68,21 +78,25 @@ namespace Timbal.Tests.AllocatorTests
             };
 
             // when
-            var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+            var actual = allocationBasis.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
-            actual.Should().HaveCount(2);
-            actual.Sum(k => k.Value).Should().Be(amountToAllocate);
+            actual.Should().NotBeNull();
 
-            actual.Should().Contain(k => k.Key == 101 && k.Value == -1000);
-            actual.Should().Contain(k => k.Key == 202 && k.Value == 1250);
+            actual.Allocations.Should().HaveCount(2)
+                .And.HaveElementAt(0, (allocationBasis.ElementAt(0), -1000m))
+                .And.HaveElementAt(1, (allocationBasis.ElementAt(1), 1250m));
+
+            actual.Remainder.Should().Be(0m);
+
+            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
+            total.Should().Be(amountToAllocate);
         }
 
         [Fact]
         public void should_throw_if_allocation_basis_nets_to_zero()
         {
             // given
-            const int precision = 5;
             const decimal amountToAllocate = 250m;
             var allocationBasis = new Dictionary<int, decimal>
             {
@@ -92,7 +106,7 @@ namespace Timbal.Tests.AllocatorTests
             };
 
             // when
-            Action actual = () => allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+            Action actual = () => allocationBasis.AllocateProportionally(amountToAllocate, i => i.Value);
 
             // then
             actual.Should().Throw<ArgumentException>();
@@ -102,12 +116,12 @@ namespace Timbal.Tests.AllocatorTests
         public void should_throw_arg_null()
         {
             // given
-            IEnumerable<KeyValuePair<int, decimal>> src = null;
+            var src = default(IEnumerable<KeyValuePair<int, decimal>>);
             const decimal amountToAllocate = 10m;
-            const int allocationPrecision = 4;
+            var settings = new AllocatorSettings { Precision = 4 };
 
             // when
-            Action actual = () => src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
+            Action actual = () => src.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
             actual.Should().Throw<ArgumentNullException>();
@@ -117,12 +131,12 @@ namespace Timbal.Tests.AllocatorTests
         public void should_throw_if_no_recipients()
         {
             // given
-            var src = Enumerable.Empty<KeyValuePair<int, decimal>>();
+            var src = new KeyValuePair<int, decimal>[] { };
             const decimal amountToAllocate = 10m;
-            const int allocationPrecision = 4;
+            var settings = new AllocatorSettings { Precision = 4 };
 
             // when
-            Action actual = () => src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
+            Action actual = () => src.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
             actual.Should().Throw<ArgumentException>();
