@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Timbal.Utilities;
+using Xunit;
 
 namespace Timbal.Tests.AllocatorTests
 {
-    [TestClass]
     public class AllocateAmountEvenlyTests
     {
-        [TestMethod]
+        [Fact]
         public void should_allocate_evenly()
         {
             // arrange
@@ -20,16 +19,15 @@ namespace Timbal.Tests.AllocatorTests
             var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
 
             // assert
-            Assert.AreEqual<int>(3, actual.Count());
-            Assert.AreEqual<decimal>(amountToAllocate, actual.Sum(k => k.Value));
+            Assert.Equal(3, actual.Count());
+            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
 
-            Assert.IsTrue(actual.Any(k => k.Key == 111 && k.Value == 3.3334m));
-            Assert.IsTrue(actual.Any(k => k.Key == 211 && k.Value == 3.3333m));
-            Assert.IsTrue(actual.Any(k => k.Key == 322 && k.Value == 3.3333m));
+            Assert.Contains(actual, k => k.Key == 211 && k.Value == 3.3333m);
+            Assert.Contains(actual, k => k.Key == 322 && k.Value == 3.3333m);
+            Assert.Contains(actual, k => k.Key == 111 && k.Value == 3.3334m);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void should_throw_arg_null()
         {
             // arrange
@@ -38,13 +36,13 @@ namespace Timbal.Tests.AllocatorTests
             const int allocationPrecision = 4;
 
             // act
-            var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
+            Action actual = () => src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
 
             // assert
+            Assert.Throws<ArgumentNullException>(actual);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void should_throw_if_no_recipients()
         {
             // arrange
@@ -53,12 +51,13 @@ namespace Timbal.Tests.AllocatorTests
             const int allocationPrecision = 4;
 
             // act
-            var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
+            Action actual = () => src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
 
             // assert
+            Assert.Throws<ArgumentException>(actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void should_allow_same_key()
         {
             // arrange
@@ -70,12 +69,12 @@ namespace Timbal.Tests.AllocatorTests
             var actual = src.AllocateAmountEvenly(amountToAllocate, allocationPrecision).ToList();
 
             // assert
-            Assert.AreEqual<int>(3, actual.Count());
-            Assert.AreEqual<decimal>(amountToAllocate, actual.Sum(k => k.Value));
+            Assert.Equal(3, actual.Count());
+            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
 
-            Assert.IsTrue(actual.Any(k => k.Key == 111 && k.Value == 3.3334m));
-            Assert.IsTrue(actual.Any(k => k.Key == 111 && k.Value == 3.3333m));
-            Assert.IsTrue(actual.Any(k => k.Key == 111 && k.Value == 3.3333m));
+            Assert.Contains(actual, k => k.Key == 111 && k.Value == 3.3334m);
+            Assert.Contains(actual, k => k.Key == 111 && k.Value == 3.3333m);
+            Assert.Contains(actual, k => k.Key == 111 && k.Value == 3.3333m);
         }
     }
 }

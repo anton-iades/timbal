@@ -1,17 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Timbal.Utilities;
+using Xunit;
 
 namespace Timbal.Tests.AllocatorTests
 {
-    [TestClass]
     public class AllocateProportionallyTests
     {
-        [TestMethod]
+        [Fact]
         public void should_allocate_propotionally()
         {
             // arrange
@@ -27,14 +24,14 @@ namespace Timbal.Tests.AllocatorTests
             var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
             // assert
-            Assert.AreEqual<int>(2, actual.Count());
-            Assert.AreEqual<decimal>(amountToAllocate, actual.Sum(k => k.Value));
+            Assert.Equal(2, actual.Count());
+            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
 
-            Assert.IsTrue(actual.Any(k => k.Key == 101 && k.Value == 71.42857m));
-            Assert.IsTrue(actual.Any(k => k.Key == 202 && k.Value == 178.57143m));
+            Assert.Contains(actual, k => k.Key == 101 && k.Value == 71.42857m);
+            Assert.Contains(actual, k => k.Key == 202 && k.Value == 178.57143m);
         }
 
-        [TestMethod]
+        [Fact]
         public void should_allow_mixed_sign_allocation_basis_netting_positive()
         {
             // arrange
@@ -50,14 +47,14 @@ namespace Timbal.Tests.AllocatorTests
             var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
             // assert
-            Assert.AreEqual<int>(2, actual.Count());
-            Assert.AreEqual<decimal>(amountToAllocate, actual.Sum(k => k.Value));
+            Assert.Equal(2, actual.Count());
+            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
 
-            Assert.IsTrue(actual.Any(k => k.Key == 101 && k.Value == 1000m));
-            Assert.IsTrue(actual.Any(k => k.Key == 202 && k.Value == -750m));
+            Assert.Contains(actual, k => k.Key == 101 && k.Value == 1000m);
+            Assert.Contains(actual, k => k.Key == 202 && k.Value == -750m);
         }
 
-        [TestMethod]
+        [Fact]
         public void should_allow_mixed_sign_allocation_basis_netting_negative()
         {
             // arrange
@@ -73,15 +70,14 @@ namespace Timbal.Tests.AllocatorTests
             var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
             // assert
-            Assert.AreEqual<int>(2, actual.Count());
-            Assert.AreEqual<decimal>(amountToAllocate, actual.Sum(k => k.Value));
+            Assert.Equal(2, actual.Count());
+            Assert.Equal(amountToAllocate, actual.Sum(k => k.Value));
 
-            Assert.IsTrue(actual.Any(k => k.Key == 101 && k.Value == -1000m));
-            Assert.IsTrue(actual.Any(k => k.Key == 202 && k.Value == 1250m));
+            Assert.Contains(actual, k => k.Key == 101 && k.Value == -1000m);
+            Assert.Contains(actual, k => k.Key == 202 && k.Value == 1250m);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void should_throw_if_allocation_basis_nets_to_zero()
         {
             // arrange
@@ -95,13 +91,13 @@ namespace Timbal.Tests.AllocatorTests
             };
 
             // act
-            var actual = allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
+            Action actual = () => allocationBasis.AllocateProportionally(amountToAllocate, precision).ToList();
 
             // assert
+            Assert.Throws<ArgumentException>(actual);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void should_throw_arg_null()
         {
             // arrange
@@ -110,13 +106,13 @@ namespace Timbal.Tests.AllocatorTests
             const int allocationPrecision = 4;
 
             // act
-            var actual = src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
+            Action actual = () => src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
 
             // assert
+            Assert.Throws<ArgumentNullException>(actual);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void should_throw_if_no_recipients()
         {
             // arrange
@@ -125,9 +121,10 @@ namespace Timbal.Tests.AllocatorTests
             const int allocationPrecision = 4;
 
             // act
-            var actual = src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
+            Action actual = () => src.AllocateProportionally(amountToAllocate, allocationPrecision).ToList();
 
             // assert
+            Assert.Throws<ArgumentException>(actual);
         }
     }
 }
