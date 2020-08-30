@@ -1,11 +1,11 @@
-# timbal
+## timbal
 A collection (n=1) of random utility methods.
 
-# requirements
+## requirements
 - [.NET Core SDK 3.1](https://dotnet.microsoft.com/download)
 
-# utilities
-## Allocator
+## utilities
+### Allocator
 Allocates an amount evenly or proportionally to a collection of items.
 The allocation uses a configurable precision and rounding method.
 If an amount cannot be completely allocated, the remainder will be included in the result.
@@ -43,7 +43,7 @@ var r2 = items.AllocateProportionally(10m, i => i.Weight, settings);
 // r2.Remainder => 0m
 ```
 
-# run/test
+## run/test
 ```sh
 dotnet test
 ```
