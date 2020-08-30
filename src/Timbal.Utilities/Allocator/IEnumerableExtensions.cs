@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Timbal.Utilities
 {
-    public static class Allocator
+    public static class IEnumerableExtensions
     {
         public static AllocationResult<T> AllocateAmountEvenly<T>(this IEnumerable<T> recipients, decimal amountToAllocate, AllocatorSettings settings = null)
         {
@@ -48,17 +48,5 @@ namespace Timbal.Utilities
                 Remainder = remainder
             };
         }
-    }
-
-    public class AllocatorSettings
-    {
-        public int Precision { get; set; }
-        public MidpointRounding MidpointRounding { get; set; }
-    }
-
-    public class AllocationResult<TKey>
-    {
-        public decimal Remainder { get; set; }
-        public IReadOnlyList<(TKey Recipient, decimal Allocation)> Allocations { get; set; }
     }
 }
