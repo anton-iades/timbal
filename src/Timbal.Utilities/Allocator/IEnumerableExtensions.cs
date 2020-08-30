@@ -6,7 +6,7 @@ namespace Timbal.Utilities
 {
     public static class IEnumerableExtensions
     {
-        public static AllocationResult<T> AllocateAmountEvenly<T>(this IEnumerable<T> recipients, decimal amountToAllocate, AllocatorSettings settings = null)
+        public static AllocationResult<T> AllocateEvenly<T>(this IEnumerable<T> recipients, decimal amountToAllocate, AllocatorSettings settings = null)
         {
             return recipients
                 .AllocateProportionally(amountToAllocate, x => 1, settings);

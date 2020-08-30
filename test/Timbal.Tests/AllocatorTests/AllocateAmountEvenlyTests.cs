@@ -17,7 +17,7 @@ namespace Timbal.Tests.AllocatorTests
             const decimal amountToAllocate = 20m;
 
             // when
-            var actual = src.AllocateAmountEvenly(amountToAllocate);
+            var actual = src.AllocateEvenly(amountToAllocate);
 
             // then
             actual.Should().NotBeNull();
@@ -41,7 +41,7 @@ namespace Timbal.Tests.AllocatorTests
             const decimal amountToAllocate = -20m;
 
             // when
-            var actual = src.AllocateAmountEvenly(amountToAllocate);
+            var actual = src.AllocateEvenly(amountToAllocate);
 
             // then
             actual.Should().NotBeNull();
@@ -65,7 +65,7 @@ namespace Timbal.Tests.AllocatorTests
             const decimal amountToAllocate = 10m;
 
             // when
-            Action actual = () => src.AllocateAmountEvenly(amountToAllocate);
+            Action actual = () => src.AllocateEvenly(amountToAllocate);
 
             // then
             actual.Should().Throw<ArgumentNullException>();
@@ -79,7 +79,7 @@ namespace Timbal.Tests.AllocatorTests
             const decimal amountToAllocate = 10m;
 
             // when
-            Action actual = () => src.AllocateAmountEvenly(amountToAllocate);
+            Action actual = () => src.AllocateEvenly(amountToAllocate);
 
             // then
             actual.Should().Throw<ArgumentException>();
@@ -94,7 +94,7 @@ namespace Timbal.Tests.AllocatorTests
             var settings = new AllocatorSettings { Precision = 4 };
 
             // when
-            var actual = src.AllocateAmountEvenly(amountToAllocate, settings);
+            var actual = src.AllocateEvenly(amountToAllocate, settings);
 
             // then
             actual.Should().NotBeNull();
