@@ -17,7 +17,7 @@ The allocation uses a configurable precision and rounding method.
 If an amount cannot be completely allocated, the remainder will be included in the result.
 
 ```csharp
-// items can be any IEnumerable<T>, will be enumerated only once
+// items can be any IEnumerable<T>
 var items = new []
 {
     new { Name = "Obj1", Weight = 1m},
