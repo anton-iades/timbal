@@ -113,7 +113,7 @@ namespace Timbal.Tests.AllocatorTests
         }
 
         [Fact]
-        public void should_throw_arg_null()
+        public void null_items_is_error()
         {
             // given
             var src = default(IEnumerable<KeyValuePair<int, decimal>>);
@@ -124,7 +124,22 @@ namespace Timbal.Tests.AllocatorTests
             Action actual = () => src.AllocateProportionally(amountToAllocate, i => i.Value, settings);
 
             // then
-            actual.Should().Throw<ArgumentNullException>();
+            actual.Should().Throw<ArgumentNullException>().And
+                .ParamName.Should().Be("items");
+        }
+
+        [Fact]
+        public void null_weightSelector_is_error()
+        {
+            // given
+            var items = new[] { "Item1", "Item2", "Item3" };
+
+            // when
+            Action actual = () => items.AllocateProportionally(250, null);
+
+            // then
+            actual.Should().Throw<ArgumentNullException>().And
+                .ParamName.Should().Be("weightSelector");
         }
 
         [Fact]

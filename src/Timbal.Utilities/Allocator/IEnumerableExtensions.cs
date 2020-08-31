@@ -19,6 +19,11 @@ namespace Timbal.Utilities
                 throw new ArgumentNullException(nameof(items));
             }
 
+            if (weightSelector is null)
+            {
+                throw new ArgumentNullException(nameof(weightSelector));
+            }
+
             var itemsList = items.ToList();
 
             if (!itemsList.Any())
