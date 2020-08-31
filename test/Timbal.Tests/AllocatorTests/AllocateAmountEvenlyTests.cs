@@ -29,7 +29,7 @@ namespace Timbal.Tests.AllocatorTests
 
             actual.Remainder.Should().Be(-1m);
 
-            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
 
@@ -53,7 +53,7 @@ namespace Timbal.Tests.AllocatorTests
 
             actual.Remainder.Should().Be(1m);
 
-            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
 
@@ -106,7 +106,7 @@ namespace Timbal.Tests.AllocatorTests
 
             actual.Remainder.Should().Be(0.0001m);
 
-            var total = actual.Allocations.Sum(k => k.Allocation) + actual.Remainder;
+            var total = actual.Allocations.Sum(k => k.Value) + actual.Remainder;
             total.Should().Be(amountToAllocate);
         }
     }

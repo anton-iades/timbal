@@ -34,16 +34,16 @@ var settings = new AllocatorSettings
 
 // allocate evenly
 var r1 = items.AllocateEvenly(10m, settings);
-// r1.Allocations[0].Allocation => 3.33m
-// r1.Allocations[1].Allocation => 3.33m
-// r1.Allocations[2].Allocation => 3.33m
+// r1.Allocations[0].Value => 3.33m
+// r1.Allocations[1].Value => 3.33m
+// r1.Allocations[2].Value => 3.33m
 // r1.Remainder => 0.01m
 
 // allocate proportionally
 var r2 = items.AllocateProportionally(10m, i => i.Weight, settings);
-// r2.Allocations[0].Allocation => 1.67m
-// r2.Allocations[1].Allocation => 3.33m
-// r2.Allocations[2].Allocation => 5m
+// r2.Allocations[0].Value => 1.67m
+// r2.Allocations[1].Value => 3.33m
+// r2.Allocations[2].Value => 5m
 // r2.Remainder => 0m
 ```
 

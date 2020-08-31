@@ -6,27 +6,27 @@ namespace Timbal.Utilities
 {
     public static class IEnumerableExtensions
     {
-        public static AllocationResult<T> AllocateEvenly<T>(this IEnumerable<T> recipients, decimal amountToAllocate, AllocatorSettings settings = null)
+        public static AllocationResult<T> AllocateEvenly<T>(this IEnumerable<T> items, decimal amount, AllocatorSettings settings = null)
         {
-            return recipients
-                .AllocateProportionally(amountToAllocate, x => 1, settings);
+            return items
+                .AllocateProportionally(amount, x => 1, settings);
         }
 
-        public static AllocationResult<T> AllocateProportionally<T>(this IEnumerable<T> recipients, decimal amountToAllocate, Func<T, decimal> weightSelector, AllocatorSettings settings = null)
+        public static AllocationResult<T> AllocateProportionally<T>(this IEnumerable<T> items, decimal amount, Func<T, decimal> weightSelector, AllocatorSettings settings = null)
         {
-            if (recipients is null)
+            if (items is null)
             {
-                throw new ArgumentNullException(nameof(recipients));
+                throw new ArgumentNullException(nameof(items));
             }
 
-            var recipientsList = recipients.ToList();
+            var itemsList = items.ToList();
 
-            if (!recipientsList.Any())
+            if (!itemsList.Any())
             {
                 throw new ArgumentException(Errors.NO_RECIPIENTS);
             }
 
-            var totalWeight = recipientsList.Sum(weightSelector);
+            var totalWeight = itemsList.Sum(weightSelector);
 
             if (totalWeight == decimal.Zero)
             {
@@ -34,13 +34,13 @@ namespace Timbal.Utilities
             }
 
             settings ??= new AllocatorSettings { };
-            var weightMultiplier = amountToAllocate / totalWeight;
+            var weightMultiplier = amount / totalWeight;
 
-            var allocations = recipientsList
-                .Select(r => (Recipient: r, Allocation: decimal.Round(weightSelector(r) * weightMultiplier, settings.Precision, settings.MidpointRounding)))
+            var allocations = itemsList
+                .Select(i => (Item: i, Allocation: decimal.Round(weightSelector(i) * weightMultiplier, settings.Precision, settings.MidpointRounding)))
                 .ToList();
 
-            var remainder = amountToAllocate - allocations.Sum(k => k.Allocation);
+            var remainder = amount - allocations.Sum(k => k.Allocation);
 
             return new AllocationResult<T>
             {
