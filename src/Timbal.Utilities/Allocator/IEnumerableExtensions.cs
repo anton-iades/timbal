@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -37,18 +37,20 @@ namespace Timbal.Utilities
                 throw new ArgumentException(Errors.ALLOCATION_BASIS_ZERO);
             }
 
-            var weightMultiplier = amount / totalWeight;
-
-            var allocations = itemsList
-                .Select(i => (Item: i, Allocation: decimal.Round(weightSelector(i) * weightMultiplier, settings.Precision, settings.MidpointRounding)))
-                .ToList();
-
-            var remainder = amount - allocations.Sum(k => k.Allocation);
+            var unallocated = amount;
+            var allocations = new List<(T, decimal)>();
+            foreach (var i in itemsList)
+            {
+                var allocation = weightSelector(i) / totalWeight * amount;
+                allocation = decimal.Round(allocation, settings.Precision, settings.MidpointRounding);
+                unallocated -= allocation;
+                allocations.Add((i, allocation));
+            }
 
             return new AllocationResult<T>
             {
                 Allocations = allocations,
-                Remainder = remainder
+                Remainder = unallocated
             };
         }
     }
