@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,13 +6,12 @@ namespace Timbal.Utilities
 {
     public static class IEnumerableExtensions
     {
-        public static AllocationResult<T> AllocateEvenly<T>(this IEnumerable<T> items, decimal amount, AllocatorSettings settings = null)
+        public static AllocationResult<T> AllocateEvenly<T>(this IEnumerable<T> items, decimal amount, AllocatorSettings settings = default)
         {
-            return items
-                .AllocateProportionally(amount, x => 1, settings);
+            return items.AllocateProportionally(amount, x => 1, settings);
         }
 
-        public static AllocationResult<T> AllocateProportionally<T>(this IEnumerable<T> items, decimal amount, Func<T, decimal> weightSelector, AllocatorSettings settings = null)
+        public static AllocationResult<T> AllocateProportionally<T>(this IEnumerable<T> items, decimal amount, Func<T, decimal> weightSelector, AllocatorSettings settings = default)
         {
             if (items is null)
             {
@@ -38,7 +37,6 @@ namespace Timbal.Utilities
                 throw new ArgumentException(Errors.ALLOCATION_BASIS_ZERO);
             }
 
-            settings ??= new AllocatorSettings { };
             var weightMultiplier = amount / totalWeight;
 
             var allocations = itemsList
